@@ -4,7 +4,8 @@ from random import choice
 
 from emoji import emojize
 import ephem
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram import ReplyKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, RegexHandler
 
 import settings_bot
 
@@ -27,10 +28,18 @@ def get_user_emo(user_data):
         user_data['emo'] = emojize(choice(settings_bot.USER_EMOJI), use_aliases=True)
 
 
+def change_avatar(bot, update, user_data):
+    if 'emo' in user_data:
+        del user_data['emo']
+    emo = get_user_emo(user_data)
+    update.message.reply_text('Готово: {}'.format(user_data['emo']))
+
+
 def send_cat_picture(bot, update, user_data):
     cat_list = glob('images/cat*.jp*g')
     cat_pic = choice(cat_list)
     bot.send_photo(chat_id=update.message.chat_id, photo=open(cat_pic, 'rb'))
+
 
 def constellation_planet(bot, update, user_data):
     if analys_query(bot, update):
@@ -77,8 +86,9 @@ def constellation_planet(bot, update, user_data):
 
 def greet_user(bot, update, user_data):
     emo = get_user_emo(user_data)
-    text = f'Привет {emo}'
+    text = f'Привет {user_data["emo"]}'
     user_data['emo'] = emo
+    my_keyboard = ReplyKeyboardMarkup([['Прислать котика', 'Сменить аватарку']])
     """В настоящее время я могу:
 	Обрабатывать команду:
 	/planet <имя планеты> - которая запускает функцию constellation_planet и сообщает пользователю в каком созвездии находится запрашиваемя
@@ -88,7 +98,7 @@ def greet_user(bot, update, user_data):
 	Или просто получать от Вас любое сообщение, и возвращать Вам его, обращаясь по имени.
 	"""
     logging.info(text)
-    update.message.reply_text(text)
+    update.message.reply_text(text, reply_markup=my_keyboard)
 
 
 def talk_to_me(bot, update, user_data):
@@ -96,7 +106,7 @@ def talk_to_me(bot, update, user_data):
     user_text = f"Привет {update.message.chat.first_name} {user_data['emo']}! Ты написал: {update.message.text}"
     logging.info(
         f"User: {update.message.chat.username}, Chat id: {update.message.chat.id}, Message: {update.message.text}")
-    #see fields in update message
+    # see fields in update message
     #print(update.message)
     update.message.reply_text(user_text)
 
@@ -104,6 +114,7 @@ def talk_to_me(bot, update, user_data):
 def word_count(bot, update, user_data):
     if analys_query(bot, update):
         update.message.reply_text(f'Количество слов в Вашем запросе: {len(update.message.text.split())-1}')
+
 
 def analys_query(bot, update):
     if len(update.message.text.split()) == 1 or update.message.text[1] == '':
@@ -140,6 +151,8 @@ def main():
     dp.add_handler(CommandHandler("planet", constellation_planet, pass_user_data=True))
     dp.add_handler(CommandHandler("wordcount", word_count, pass_user_data=True))
     dp.add_handler(CommandHandler("cat", send_cat_picture, pass_user_data=True))
+    dp.add_handler(RegexHandler('^(Прислать котика)$', send_cat_picture, pass_user_data=True))
+    dp.add_handler(RegexHandler('^(Сменить аватарку)$', change_avatar, pass_user_data=True))
     # dp.add_handler(CommandHandler("cities", game_town_user, pass_user_data=True))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me, pass_user_data=True))
 
