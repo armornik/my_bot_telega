@@ -6,3 +6,5 @@ settings_bot.py
 bot.log
 .idea
 __pycache__
+game_town_base.py
+mydatabase.db
