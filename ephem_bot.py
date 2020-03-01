@@ -2,6 +2,7 @@ from glob import glob
 import logging
 from random import choice
 
+from emoji import emojize
 import ephem
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
@@ -13,20 +14,25 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     )
 
 
-# def game_town_user(bot, update):
+# def game_town_user(bot, update, user_data):
 #     if analys_query(bot, update):
 #         cities1 = update.message.text.split(' ')[1].strip().upper()
 #         update.message.reply_text(f'{game("", cities1)}!\n')
 
 
+def get_user_emo(user_data):
+    if 'emo' in user_data:
+        return user_data['emo']
+    else:
+        user_data['emo'] = emojize(choice(settings_bot.USER_EMOJI), use_aliases=True)
 
 
-def send_cat_picture(bot, update):
+def send_cat_picture(bot, update, user_data):
     cat_list = glob('images/cat*.jp*g')
     cat_pic = choice(cat_list)
     bot.send_photo(chat_id=update.message.chat_id, photo=open(cat_pic, 'rb'))
 
-def constellation_planet(bot, update):
+def constellation_planet(bot, update, user_data):
     if analys_query(bot, update):
     # name_planet = update.message.text.split(' ')[1].strip().lower()
 
@@ -69,8 +75,11 @@ def constellation_planet(bot, update):
                 'Такой планеты нет, попробуйте: Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune')
 
 
-def greet_user(bot, update):
-    text = """В настоящее время я могу:
+def greet_user(bot, update, user_data):
+    emo = get_user_emo(user_data)
+    text = f'Привет {emo}'
+    user_data['emo'] = emo
+    """В настоящее время я могу:
 	Обрабатывать команду:
 	/planet <имя планеты> - которая запускает функцию constellation_planet и сообщает пользователю в каком созвездии находится запрашиваемя
 		планета на текущую дату. Можно узнать информацию о следующих планетах: Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune.
@@ -82,15 +91,17 @@ def greet_user(bot, update):
     update.message.reply_text(text)
 
 
-def talk_to_me(bot, update):
-    user_text = f"Привет {update.message.chat.first_name}! Ты написал: {update.message.text}"
+def talk_to_me(bot, update, user_data):
+    emo = get_user_emo(user_data)
+    user_text = f"Привет {update.message.chat.first_name} {user_data['emo']}! Ты написал: {update.message.text}"
     logging.info(
         f"User: {update.message.chat.username}, Chat id: {update.message.chat.id}, Message: {update.message.text}")
-    print(update.message)
+    #see fields in update message
+    #print(update.message)
     update.message.reply_text(user_text)
 
 
-def word_count(bot, update):
+def word_count(bot, update, user_data):
     if analys_query(bot, update):
         update.message.reply_text(f'Количество слов в Вашем запросе: {len(update.message.text.split())-1}')
 
@@ -125,12 +136,12 @@ def main():
     logging.info("Бот запускается")
 
     dp = mybot.dispatcher
-    dp.add_handler(CommandHandler("start", greet_user))
-    dp.add_handler(CommandHandler("planet", constellation_planet))
-    dp.add_handler(CommandHandler("wordcount", word_count))
-    dp.add_handler(CommandHandler("cat", send_cat_picture))
-    # dp.add_handler(CommandHandler("cities", game_town_user))
-    dp.add_handler(MessageHandler(Filters.text, talk_to_me))
+    dp.add_handler(CommandHandler("start", greet_user, pass_user_data=True))
+    dp.add_handler(CommandHandler("planet", constellation_planet, pass_user_data=True))
+    dp.add_handler(CommandHandler("wordcount", word_count, pass_user_data=True))
+    dp.add_handler(CommandHandler("cat", send_cat_picture, pass_user_data=True))
+    # dp.add_handler(CommandHandler("cities", game_town_user, pass_user_data=True))
+    dp.add_handler(MessageHandler(Filters.text, talk_to_me, pass_user_data=True))
 
     mybot.start_polling()
     mybot.idle()
