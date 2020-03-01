@@ -1,14 +1,29 @@
+from glob import glob
 import logging
-import ephem
-import settings_bot
+from random import choice
 
+import ephem
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+
+from game_town import game
+import settings_bot
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
                     filename='bot.log'
                     )
 
+
+def game_town_user(bot, update):
+    if analys_query(bot, update):
+        cities1: str = update.message.text.split(' ')[1].strip().upper()
+        update.message.reply_text(f'Приветствую тебя {update.message.chat.username}!\n',
+                                  game('', cities1))
+
+def send_cat_picture(bot, update):
+    cat_list = glob('images/cat*.jp*g')
+    cat_pic = choice(cat_list)
+    bot.send_photo(chat_id=update.message.chat_id, photo=open(cat_pic, 'rb'))
 
 def constellation_planet(bot, update):
     if analys_query(bot, update):
@@ -109,10 +124,12 @@ def main():
     logging.info("Бот запускается")
 
     dp = mybot.dispatcher
-    dp.add_handler(MessageHandler(Filters.text, talk_to_me))
     dp.add_handler(CommandHandler("start", greet_user))
     dp.add_handler(CommandHandler("planet", constellation_planet))
     dp.add_handler(CommandHandler("wordcount", word_count))
+    dp.add_handler(CommandHandler("cat", send_cat_picture))
+    dp.add_handler(CommandHandler("cities", game_town_user))
+    dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
     mybot.start_polling()
     mybot.idle()
