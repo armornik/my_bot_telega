@@ -5,7 +5,6 @@ from random import choice
 import ephem
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-from game_town import game
 import settings_bot
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -14,11 +13,13 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     )
 
 
-def game_town_user(bot, update):
-    if analys_query(bot, update):
-        cities1: str = update.message.text.split(' ')[1].strip().upper()
-        update.message.reply_text(f'Приветствую тебя {update.message.chat.username}!\n',
-                                  game('', cities1))
+# def game_town_user(bot, update):
+#     if analys_query(bot, update):
+#         cities1 = update.message.text.split(' ')[1].strip().upper()
+#         update.message.reply_text(f'{game("", cities1)}!\n')
+
+
+
 
 def send_cat_picture(bot, update):
     cat_list = glob('images/cat*.jp*g')
@@ -128,7 +129,7 @@ def main():
     dp.add_handler(CommandHandler("planet", constellation_planet))
     dp.add_handler(CommandHandler("wordcount", word_count))
     dp.add_handler(CommandHandler("cat", send_cat_picture))
-    dp.add_handler(CommandHandler("cities", game_town_user))
+    # dp.add_handler(CommandHandler("cities", game_town_user))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
     mybot.start_polling()

@@ -1,13 +1,13 @@
-
-town_list = []
-with open('town_russia.txt', 'r', encoding='utf-8') as f:
-	for line in f:
-		town_list +=line.splitlines()
-CITIES = list(map(lambda x:x.upper(), town_list))
-letters_unikum = []
-for word in CITIES:
-	if word[0] not in letters_unikum:
-		letters_unikum.append(word[0])
+if __name__ == '__main__':
+	town_list = []
+	with open('town_russia.txt', 'r', encoding='utf-8') as f:
+		for line in f:
+			town_list +=line.splitlines()
+	CITIES = list(map(lambda x:x.upper(), town_list))
+	letters_unikum = []
+	for word in CITIES:
+		if word[0] not in letters_unikum:
+			letters_unikum.append(word[0])
 
 
 def availability_town(town, index, winner, remaining_cities):
@@ -22,17 +22,17 @@ def availability_town(town, index, winner, remaining_cities):
 	if town:
 		if town[-1] in letters_unikum:
 			print(f'Ваш ход на букву {town[-1]}')
-			game(town[-1], town) #этот вызов обнуляет список городов remaining_cities
+			game(town[-1]) #этот вызов обнуляет список городов remaining_cities
 		else:
 			print(f'Так как города на букву {town[-1]} нет, то вы называете город на букву {town[-2]}')
-			game(town[-2], town) #этот вызов обнуляет список городов remaining_cities
+			game(town[-2]) #этот вызов обнуляет список городов remaining_cities
 	else:
 		print(town)
 		print(f'Города на {town[0]} закончились')
 		print(winner)
 
 
-def game(letter, first_cities):
+def game(letter):
 	remaining_cities = list(CITIES)
 	if letter:
 		while True:
@@ -43,10 +43,7 @@ def game(letter, first_cities):
 			else:
 				break
 	else:
-		if first_cities and first_cities != town:
-			town = first_cities
-		else:
-			town = input('Введите город: ').upper()
+		town = input('Введите город: ').upper()
 	if town in remaining_cities:
 		if town[-1] in letters_unikum:
 			availability_town(town, -1, 'Я победил', remaining_cities)
@@ -55,8 +52,7 @@ def game(letter, first_cities):
 			availability_town(town, -2, 'Вы победили', remaining_cities)
 	else:
 		print('Нет такого города в списке')
-		return game('', '')
+		return game('')
 
 
-if __name__ == '__main__':
-	game('','')
+game('')
