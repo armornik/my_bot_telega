@@ -7,7 +7,7 @@ import ephem
 from telegram import ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, RegexHandler
 
-from game_town_web import game
+from game_town_web import game, cities_data
 import settings_bot
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -16,10 +16,15 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     )
 
 
+
 def game_town_user(bot, update, user_data):
     if analys_query(bot, update):
-        cities1 = update.message.text.split(' ')[1].strip().upper()
-        game("", cities1, update)
+        if 'id' in user_data:
+            game("", cities_data, update)
+        else:
+            cities1 = update.message.text.split(' ')[1].strip().upper()
+            user_data[id] = update.message.chat.id
+            game("", cities1, update)
 
 
 def get_user_emo(user_data):
