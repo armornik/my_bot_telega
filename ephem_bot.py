@@ -7,6 +7,7 @@ import ephem
 from telegram import ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, RegexHandler
 
+from game_town_web import game
 import settings_bot
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -15,10 +16,10 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     )
 
 
-# def game_town_user(bot, update, user_data):
-#     if analys_query(bot, update):
-#         cities1 = update.message.text.split(' ')[1].strip().upper()
-#         update.message.reply_text(f'{game("", cities1)}!\n')
+def game_town_user(bot, update, user_data):
+    if analys_query(bot, update):
+        cities1 = update.message.text.split(' ')[1].strip().upper()
+        game("", cities1, update)
 
 
 def get_user_emo(user_data):
@@ -36,7 +37,7 @@ def change_avatar(bot, update, user_data):
 
 
 def send_cat_picture(bot, update, user_data):
-    cat_list = glob('images/cat*.jp*g')
+    cat_list = glob('images/cat*.jp[e]{0,1}g')
     cat_pic = choice(cat_list)
     bot.send_photo(chat_id=update.message.chat_id, photo=open(cat_pic, 'rb'))
 
@@ -153,7 +154,7 @@ def main():
     dp.add_handler(CommandHandler("cat", send_cat_picture, pass_user_data=True))
     dp.add_handler(RegexHandler('^(Прислать котика)$', send_cat_picture, pass_user_data=True))
     dp.add_handler(RegexHandler('^(Сменить аватарку)$', change_avatar, pass_user_data=True))
-    # dp.add_handler(CommandHandler("cities", game_town_user, pass_user_data=True))
+    dp.add_handler(CommandHandler("cities", game_town_user, pass_user_data=True))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me, pass_user_data=True))
 
     mybot.start_polling()
