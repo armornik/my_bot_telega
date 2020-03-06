@@ -2,7 +2,7 @@ from glob import glob
 import logging
 from random import choice
 
-import ephem
+import planet_info
 from telegram import update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import settings_bot
