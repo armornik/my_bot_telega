@@ -27,8 +27,6 @@ def game_town_user(bot, update, user_data):
             game(user_data['id'], cities1, update)
 
 
-<<<<<<< HEAD
-=======
 def get_user_emo(user_data):
     if 'emo' in user_data:
         return user_data['emo']
