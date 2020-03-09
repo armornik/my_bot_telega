@@ -1,6 +1,6 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, RegexHandler
 
-from game_town_base_bot import game
+from game_town_base_bot import game, clear, calculator, help
 from utils import*
 from handlers import*
 from planet_inform import constellation_planet
@@ -10,15 +10,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     filename='bot.log'
                     )
 
-
-def game_town_user(bot, update, user_data):
-    if analys_query(bot, update):
-        cities1 = update.message.text.split(' ')[1].strip().upper()
-        if 'id' in user_data:
-            game(user_data[id], cities1, update)
-        else:
-            user_data[id] = update.message.chat.id
-            game(user_data[id], cities1, update)
 
 
 def main():
@@ -45,7 +36,10 @@ def main():
     dp.add_handler(CommandHandler("cat", send_cat_picture, pass_user_data=True))
     dp.add_handler(RegexHandler('^(Прислать котика)$', send_cat_picture, pass_user_data=True))
     dp.add_handler(RegexHandler('^(Сменить аватарку)$', change_avatar, pass_user_data=True))
-    dp.add_handler(CommandHandler("c", game_town_user, pass_user_data=True))
+    dp.add_handler(CommandHandler("cities", game, pass_user_data=True))
+    dp.add_handler(CommandHandler("clear", clear, pass_user_data=True))
+    dp.add_handler(CommandHandler("calc", calculator, pass_user_data=True))
+    dp.add_handler(CommandHandler("help", help, pass_user_data=True))
     dp.add_handler(MessageHandler(Filters.contact, get_contact, pass_user_data=True))
     dp.add_handler(MessageHandler(Filters.location, get_location, pass_user_data=True))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me, pass_user_data=True))

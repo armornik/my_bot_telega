@@ -1,114 +1,94 @@
 import sqlite3
 
-
-# delete old table and create new with two column
+# # delete old table and create new with two column
+# conn = sqlite3.connect("mydatabase.db")
+# cursor = conn.cursor()
 # cursor.execute("DROP TABLE IF EXISTS towns")
 # cursor.execute("CREATE TABLE IF NOT EXISTS towns (town varchar(255), is_used int) ")
-#cursor.execute("CREATE TABLE IF NOT EXISTS game_data (id_user varchar(255), last_word varchar(255)) ")
+# cursor.execute("CREATE TABLE IF NOT EXISTS users (username varchar(255), last_town varchar(255), lastletter varchar(255)) ")
+#
+# if __name__ == '__main__':
+#     # Null column is_used
+#     cursor.execute('UPDATE towns SET is_used = 0')
+#     # filling table when new
+#     with open('town_russia.txt', 'r', encoding='utf-8') as f:
+#         for line in f:
+#             cursor.execute("INSERT INTO towns VALUES ('{t}',{u})".format(t=line.upper().rstrip("\n"), u=0))
+#             conn.commit()
+#             pass
 
-if __name__ == '__main__':
-    town_list = []
-    # Null column is_used
-    #cursor.execute('UPDATE towns SET is_used = 0')
-    # filling table when new
-    # with open('town_russia.txt', 'r', encoding='utf-8') as f:
-    #     for line in f:
-    #         cursor.execute("INSERT INTO towns VALUES ('{t}',{u})".format(t=line.upper().rstrip("\n"), u=0))
-    #         conn.commit()
-    #         pass
 
 
-def game(ide, town, update):
+def game(bot, update, user_data):
+    def my_move(town, username):
+        for i in town[::-1]:
+            res3 = cursor.execute(
+                "SELECT * FROM towns WHERE substr(town,1,1) = '{let}' AND is_used = 0 LIMIT 1".format(
+                    let=i)).fetchone()
+            if (res3):
+                update.message.reply_text('My answer: ' + res3[0])
+                last_letter = res3[0][-1] if res3[0][-1] not in ['Ь', 'Ъ', 'Ы', ' '] else res3[0][-2]
+                res4 = cursor.execute(
+                    "UPDATE users SET last_town = '{t}', lastletter = '{ll}' WHERE username = '{u}'".format(
+                        u=username, t=res3[0], ll=last_letter))
+                conn.commit()
+                res55 = cursor.execute("UPDATE towns SET is_used = 1 WHERE town = '{t}'".format(t=res3[0]))
+                conn.commit()
+                return
+            update.message.reply_text('No cities on ' + i + ', searching next...')
+        update.message.reply_text('No cities on ' + i + ', you win')
+
     conn = sqlite3.connect("mydatabase.db")
     cursor = conn.cursor()
-    town = town.upper()
-    # check id it table
-    cursor.execute("SELECT * FROM game_data WHERE id_user = '{i}'".format(i=ide))
-    check_id = cursor.fetchone()
-    print(check_id)
-    print(3)
-    if check_id:
-        cursor.execute("SELECT last_word FROM game_data WHERE id = '{i}'".format(i=ide))
-        last_word = cursor.fetchone()
-        print(last_word)
-        print(9)
-        for i in last_word[::-1]:
-            cursor.execute("SELECT * FROM towns WHERE substr(town,1,1) = '{let}' AND is_used = 0 LIMIT 1".format(let=i))
-            res = cursor.fetchone()
-            if res:
-                if res[0][-1] in ('Ь', ' ', 'Ы', 'Ъ'):
-                    check_letter = res[0][-2]
-                    letter = town[0]
-                    if check_letter != letter:
-                        return update.message.reply_text(f'Неверный ввод, не та буква в начале, Вам необходимо ввести город на букву {check_letter}')
-                    else:
-                        # check town it table
-                        cursor.execute("SELECT * FROM towns WHERE town = '{t}'".format(t=town))
-                        # get first result
-                        res = cursor.fetchone()
-                        if res:
-                            if res[1] == 1:
-                                return update.message.reply_text("Такой город уже называли")
-                            else:
-                                cursor.execute("UPDATE towns SET is_used = 1 WHERE town = '{t}'".format(t=town))
-                                conn.commit()
-                                for i in town[::-1]:
-                                    cursor.execute(
-                                        "SELECT * FROM towns WHERE substr(town,1,1) = '{let}' AND is_used = 0 LIMIT 1".format(
-                                            let=i))
-                                    res = cursor.fetchone()
-                                    if res:
-                                        if res[0][-1] in ('Ь', ' ', 'Ы', 'Ъ'):
-                                            game(ide, res[0][-2], update)
-                                        else:
-                                            game(ide, res[0][-1], update)
-                                    return update.message.reply_text(f'Городов на {i} нет, смотрю дальше')
-                                cursor.execute('UPDATE towns SET is_used = 0')
-                                return update.message.reply_text('Ты выиграл, городов больше нет')
-                                exit(0)
-    # check town it table
-    cursor.execute("SELECT * FROM towns WHERE town = '{t}'".format(t=town))
-    res = cursor.fetchone()
-    print(1)
-    if res:
-        if res[1] == 1:
-            update.message.reply_text("Такой город уже называли\n")
-            print(4)
-            if town[-1] in ('Ь', ' ', 'Ы', 'Ъ'):
-                print(5)
-                cursor.execute("SELECT last_word FROM game_data")
-                last = cursor.fetchone()
-                return update.message.reply_text(f'Мой ход был: {last}\n Назови город на букву {last[-2]}')
-            else:
-                print(6)
-                cursor.execute("SELECT last_word FROM game_data")
-                last = cursor.fetchone()
-                print(last)
-                return update.message.reply_text(f'Мой ход был: {last}\n Назови город на букву {last[-1]}')
-        else:
-            cursor.execute("UPDATE towns SET is_used = 1 WHERE town = '{t}'".format(t=town))
-            # cursor.execute("UPDATE game_data SET id_user = '{i} WHERE id_used = '{i}'".format(i=ide))
-            conn.commit()
-            print(7)
-            for i in town[::-1]:
-                cursor.execute("SELECT * FROM towns WHERE substr(town,1,1) = '{let}' AND is_used = 0 LIMIT 1".format(let=i))
-                res = cursor.fetchone()
-                print(8)
-                if res:
-                    print("Мой ход: " + res[0])
-                    cursor.execute("UPDATE towns SET is_used = 1 WHERE town = '{t}'".format(t=res[0]))
-                    cursor.execute(
-                        "UPDATE game_data SET id_user = '{i}'".format(i=ide))
-                    cursor.execute("UPDATE game_data SET last_word = '{t}'  WHERE id_user = '{i}'".format(i=ide, t=res[0]))
+    try:  #Is input not blank?
+        town = update['message']['text'].split()[1].upper()
+    except:
+        update.message.reply_text('A Town Game. Input town. If u want to reset towns, give command /clear. See /help')
+        return
+
+    username = update['message']['chat']['username']
+    res = cursor.execute("SELECT * FROM towns WHERE town = '{t}' LIMIT 1".format(t=town.upper())).fetchone()
+    if res:  # Got input
+        if res[1] == 0:  # Town was not used
+            res2 = cursor.execute("SELECT * FROM users WHERE username = '{u}' LIMIT 1".format(u=username)).fetchone()
+            if res2:  # User found! Continue gaming
+                if town[0] != res2[2]:
+                    update.message.reply_text(
+                        'My last answer was ' + res2[1] + ', your town must begin with letter ' + res2[2])
+                    return
+                else:
+                    res8 = cursor.execute("UPDATE towns SET is_used = 1 WHERE town = '{t}'".format(t=town))
                     conn.commit()
-                    print(last_word)
-                    if res[0][-1] in ('Ь', ' ', 'Ы', 'Ъ'):
-                        return update.message.reply_text(f'Мой ход: {res[0]}\n Назови город на букву {res[0][-2]}')
-                    else:
-                        return update.message.reply_text(f'Мой ход: {res[0]}\n Назови город на букву {res[0][-1]}')
-                return update.message.reply_text(f'Городов на {i} нет, смотрю дальше')
-            cursor.execute('UPDATE towns SET is_used = 0')
-            return update.message.reply_text('Ты выиграл, городов больше нет')
+                    my_move(town, username)  # Computer move
+                    return
+            else:  # New user, welcome
+                update.message.reply_text('Welcome, new user')
+                res2 = cursor.execute("INSERT INTO users VALUES ('{u}', '{t}', '')".format(u=username, t=town))
+                res5 = cursor.execute("UPDATE towns SET is_used = 1 WHERE town = '{t}'".format(t=town))
+                conn.commit()
+                update.message.reply_text('Your city: ' + town)
+                my_move(town, username)  # Computer move
+                return
+        else:
+            update.message.reply_text('City was already taken')
     else:
-        print(2)
-        return update.message.reply_text('Нет такого города')
+        update.message.reply_text('No such city found')
+
+
+def clear(bot, update, user_data):
+    conn = sqlite3.connect("mydatabase.db")
+    cursor = conn.cursor()
+    res = cursor.execute("UPDATE towns SET is_used = 0")
+    conn.commit()
+    update.message.reply_text('All citieas are cleared')
+
+
+def calculator(bot, update, user_data):
+    try:
+        update.message.reply_text(eval(update['message']['text'].replace('/calc ', '').replace(' ', '')))
+    except:
+        update.message.reply_text('Error')
+
+def help(bot, update, user_data):
+    text = """Hi, I am a Armornikbot\r\n/calc - Calculator\r\n/c - Town game\r\n/clear - clear used cities in towngame"""
+    update.message.reply_text(text)
