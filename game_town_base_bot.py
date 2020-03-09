@@ -12,18 +12,20 @@ if __name__ == '__main__':
     # Null column is_used
     cursor.execute('UPDATE towns SET is_used = 0')
     # filling table when new
-    with open('town_russia.txt', 'r', encoding='utf-8') as f:
-        for line in f:
-            cursor.execute("INSERT INTO towns VALUES ('{t}',{u})".format(t=line.upper().rstrip("\n"), u=0))
-            conn.commit()
-            pass
+    # with open('town_russia.txt', 'r', encoding='utf-8') as f:
+    #     for line in f:
+    #         cursor.execute("INSERT INTO towns VALUES ('{t}',{u})".format(t=line.upper().rstrip("\n"), u=0))
+    #         conn.commit()
+    #         pass
 
 
 def game(ide, town, update):
     town = town.upper()
     # check id it table
-    print(1)
-    cursor.execute("SELECT * FROM game_data WHERE id_user = '{}'".format(ide))
+    print(ide)
+    print(town)
+    print(update)
+    cursor.execute("SELECT * FROM game_data WHERE id_user = '{i}'".format(i=ide))
     check_id = cursor.fetchone()
     print(3)
     if check_id:

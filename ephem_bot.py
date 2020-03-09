@@ -13,12 +13,12 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 def game_town_user(bot, update, user_data):
     if analys_query(bot, update):
+        cities1 = update.message.text.split(' ')[1].strip().upper()
         if 'id' in user_data:
-            game("", cities_data, update)
+            game(user_data[id], cities1, update)
         else:
-            cities1 = update.message.text.split(' ')[1].strip().upper()
             user_data[id] = update.message.chat.id
-            game("", cities1, update)
+            game(user_data[id], cities1, update)
 
 
 def main():
