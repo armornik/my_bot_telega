@@ -25,9 +25,9 @@ def talk_to_me(bot, update, user_data):
     logging.info(
         f"User: {update.message.chat.username}, Chat id: {update.message.chat.id}, Message: {update.message.text}")
     # see fields in update message
-    #print(update.message)
+    # print(update.message)
     update.message.reply_text(user_text, reply_markup=get_keyboard())
-#reply_markup=my_keyboard - вызов клавиатуры
+    # reply_markup=my_keyboard - вызов клавиатуры
 
 
 def word_count(bot, update, user_data):
@@ -59,13 +59,14 @@ def greet_user(bot, update, user_data):
     location_button = KeyboardButton('Прислать координаты', request_location=True)
     user_data['emo'] = emo
     """В настоящее время я могу:
-	Обрабатывать команду:
-	/planet <имя планеты> - которая запускает функцию constellation_planet и сообщает пользователю в каком созвездии находится запрашиваемя
-		планета на текущую дату. Можно узнать информацию о следующих планетах: Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune.
-		Названия планет так же можно вводить на русском языке не зависимо от регистра.
+    Обрабатывать команду:
+    /planet <имя планеты> - которая запускает функцию constellation_planet и сообщает пользователю в каком созвездии 
+    находится запрашиваемя планета на текущую дату. Можно узнать информацию о следующих планетах: Mercury, Venus, Mars, 
+    Jupiter, Saturn, Uranus, Neptune.
+    Названия планет так же можно вводить на русском языке не зависимо от регистра.
 
-	Или просто получать от Вас любое сообщение, и возвращать Вам его, обращаясь по имени.
-	"""
+    Или просто получать от Вас любое сообщение, и возвращать Вам его, обращаясь по имени.
+    """
 
     logging.info(text)
     update.message.reply_text(text, reply_markup=get_keyboard())

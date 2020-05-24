@@ -89,6 +89,7 @@ def calculator(bot, update, user_data):
     except:
         update.message.reply_text('Error')
 
+
 def help(bot, update, user_data):
     text = """Hi, I am a Armornikbot\r\n/calc - Calculator\r\n/c - Town game\r\n/clear - clear used cities in towngame"""
     update.message.reply_text(text)
