@@ -43,6 +43,7 @@ def main():
     dp.add_handler(CommandHandler("calc", calculator, pass_user_data=True))
     dp.add_handler(CommandHandler("help", help, pass_user_data=True))
     dp.add_handler(MessageHandler(Filters.contact, get_contact, pass_user_data=True))
+    dp.add_handler(MessageHandler(Filters.photo, check_user_photo, pass_user_data=True))
     dp.add_handler(MessageHandler(Filters.location, get_location, pass_user_data=True))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me, pass_user_data=True))
 
