@@ -1,8 +1,10 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, RegexHandler
+from telegram.ext import CommandHandler, ConversationHandler, Filters, MessageHandler,  RegexHandler, Updater
 
 from game_town_base_bot import game, clear, calculator, help
-from utils import*
-from handlers import*
+import logging
+import settings_bot
+from handlers import anketa_comment, anketa_get_name, anketa_rating, anketa_skip_comment, anketa_start, change_avatar, \
+    check_user_photo, dont_know, get_contact, get_location, greet_user, send_cat_picture, talk_to_me, word_count
 from planet_inform import constellation_planet
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -25,6 +27,9 @@ def main():
     настройки прокси и запускает два метода:
     start_polling() - непосредственно запуск работы бота
     idle() - поддержка работоспособности бота пока не прервать, или произойдёт критическая ошибка в работе.
+    Если присылают фото, на нём проверяется наличие котика, и при его наличии фото добавляется в базу.
+    Команда "Сменить аватарку" (или кнопка) - меняет аватарку пользователю.
+    Команда "Заполнить анкету" - инициализирует запуск анкеты по оценке бота.
     """
 
     mybot = Updater(settings_bot.API, request_kwargs=settings_bot.PROXY)
@@ -32,7 +37,20 @@ def main():
     logging.info("Бот запускается")
 
     dp = mybot.dispatcher
+
+    anketa = ConversationHandler(
+        entry_points=[RegexHandler('^(Заполнить анкету)$', anketa_start, pass_user_data=True)],
+        states={
+            'name': [MessageHandler(Filters.text, anketa_get_name, pass_user_data=True)],
+            'rating': [RegexHandler('^(1|2|3|4|5)$', anketa_rating, pass_user_data=True)],
+            'comment': [MessageHandler(Filters.text, anketa_comment, pass_user_data=True),
+                        CommandHandler('skip', anketa_skip_comment, pass_user_data=True)]
+        },
+        fallbacks=[MessageHandler(Filters.text, dont_know, pass_user_data=True)]
+    )
+
     dp.add_handler(CommandHandler("start", greet_user, pass_user_data=True))
+    dp.add_handler(anketa)
     dp.add_handler(CommandHandler("planet", constellation_planet, pass_user_data=True))
     dp.add_handler(CommandHandler("wordcount", word_count, pass_user_data=True))
     dp.add_handler(CommandHandler("cat", send_cat_picture, pass_user_data=True))

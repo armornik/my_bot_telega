@@ -18,14 +18,13 @@ import sqlite3
 #             pass
 
 
-
 def game(bot, update, user_data):
     def my_move(town, username):
         for i in town[::-1]:
             res3 = cursor.execute(
                 "SELECT * FROM towns WHERE substr(town,1,1) = '{let}' AND is_used = 0 LIMIT 1".format(
                     let=i)).fetchone()
-            if (res3):
+            if res3:
                 update.message.reply_text('My answer: ' + res3[0])
                 last_letter = res3[0][-1] if res3[0][-1] not in ['Ь', 'Ъ', 'Ы', ' '] else res3[0][-2]
                 res4 = cursor.execute(
@@ -40,7 +39,7 @@ def game(bot, update, user_data):
 
     conn = sqlite3.connect("mydatabase.db")
     cursor = conn.cursor()
-    try:  #Is input not blank?
+    try:  # Is input not blank?
         town = update['message']['text'].split()[1].upper()
     except:
         update.message.reply_text('A Town Game. Input town. If u want to reset towns, give command /clear. See /help')
@@ -91,5 +90,6 @@ def calculator(bot, update, user_data):
 
 
 def help(bot, update, user_data):
-    text = """Hi, I am a Armornikbot\r\n/calc - Calculator\r\n/c - Town game\r\n/clear - clear used cities in towngame"""
+    text = """Hi, I am a Armornikbot\r\n/calc - Calculator\r\n/c - Town game
+    \r\n/clear - clear used cities in towngame"""
     update.message.reply_text(text)
