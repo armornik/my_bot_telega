@@ -1,6 +1,6 @@
 certifi==2019.11.28
 cffi==1.14.0
-cryptography==3.3.2
+cryptography==39.0.1
 emoji==0.5.4
 ephem==3.7.7.1
 future==0.18.2
